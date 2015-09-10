@@ -5,7 +5,7 @@ QPJControler
 
 Video projector controller UI + Kramer DVI Matrix using Qt Framework.
 
-QPJControler is designed using Qt Creator 2.8.1 based on Qt 5.1.1 under MacOSX 10.10
+gsControler is designed using Qt Creator 2.8.1 based on Qt 5.1.1 under MacOSX 10.10
 
 Only works for PJLINK protocol projectors without login/password
 
