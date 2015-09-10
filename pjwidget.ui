@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>pjWidget</class>
+ <widget class="QWidget" name="pjWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>575</width>
+    <height>26</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QCheckBox" name="selector">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>3</y>
+     <width>116</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>NAME</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="off">
+   <property name="geometry">
+    <rect>
+     <x>505</x>
+     <y>-3</y>
+     <width>67</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>OFF</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="online_icon">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>5</y>
+     <width>16</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="img.qrc">:/icons/img/ko.png</pixmap>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="unmute">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>-3</y>
+     <width>81</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>UNMUTE</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="mute">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>-3</y>
+     <width>77</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>MUTE</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="source_box">
+   <property name="geometry">
+    <rect>
+     <x>123</x>
+     <y>0</y>
+     <width>95</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="on">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>-3</y>
+     <width>62</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ON</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="img.qrc"/>
+ </resources>
+ <connections/>
+</ui>
