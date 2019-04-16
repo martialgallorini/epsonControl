@@ -28,16 +28,6 @@ void pjWidget::setProjectorName(QString pjName)
     ui->selector->setText(pjName);
 }
 
-void pjWidget::setVideoInputs(QStringList inList)
-{
-    // populate sources list with sources available for use in a model/view combobox
-    srcModel = new QStringListModel(this); // create a model
-    srcModel->setStringList(inList); // set the list to the model
-    ui->source_box->blockSignals(true);
-    ui->source_box->setModel(srcModel); // populate combobox with the sources list
-    ui->source_box->blockSignals(false);
-}
-
 void pjWidget::selectProjector(bool checked)
 {
     ui->selector->setChecked(checked);
@@ -83,6 +73,16 @@ void pjWidget::shutterOff()
     proj->shutterOff();
 }
 
+void pjWidget::patternOn()
+{
+    proj->patternOn();
+}
+
+void pjWidget::patternOff()
+{
+    proj->patternOff();
+}
+
 void pjWidget::powerOn()
 {
     proj->powerOn();
@@ -93,12 +93,39 @@ void pjWidget::powerOff()
     proj->powerOff();
 }
 
-void pjWidget::selectInput(const QString input)
+void pjWidget::patternNext()
 {
-    ui->source_box->setCurrentText(input);
+    proj->pgUpKey();
 }
 
+void pjWidget::patternPrev()
+{
+    proj->pgDownKey();
+}
+
+
+
 // SLOTS -----------------------------
+
+void pjWidget::on_patternOn_clicked()
+{
+    proj->patternOn();
+}
+
+void pjWidget::on_patternOff_clicked()
+{
+    proj->patternOff();
+}
+
+void pjWidget::on_patternNext_clicked()
+{
+    proj->pgUpKey();
+}
+
+void pjWidget::on_patternPrev_clicked()
+{
+    proj->pgDownKey();
+}
 
 void pjWidget::on_mute_clicked()
 {
@@ -133,3 +160,4 @@ void pjWidget::pjDisconnected()
     ui->online_icon->setPixmap(QPixmap(":/icons/img/ko.png"));
     emit sigPjDisconnected();
 }
+

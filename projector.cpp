@@ -1,25 +1,16 @@
 #include "projector.h"
 
-Projector::Projector(QString _ip, qint16 _port, pjProtocol _comMode, QObject *parent) :
+Projector::Projector(QString _ip, quint16 _port, pjProtocol _comMode, QObject *parent) :
     QObject(parent)
 {
     ipAddr = _ip;
     portNum = _port;
     comMode = _comMode;
 
-    // Physical inputs with associated commands
-    pjInput["DVI"] = "%1INPT 31\r";
-    pjInput["SDI"] = "%1INPT 33\r";
-    pjInput["HDMI"] = "%1INPT 32\r";
-    pjInput["RGB1"] = "%1INPT 11\r";
-    pjInput["RGB2"] = "%1INPT 12\r";
-    pjInput["VIDEO"] = "%1INPT 21\r";
-    pjInput["S-VIDEO"] = "%1INPT 22\r";
+    TcpSocket = new QTcpSocket(this);
 
-    socket = new QTcpSocket(this);
-
-    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(TcpSocket, SIGNAL(connected()), this, SLOT(connected()));
+    connect(TcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
     // timer to handle connexions timeout
     timer = new QTimer(this);
@@ -29,54 +20,160 @@ Projector::Projector(QString _ip, qint16 _port, pjProtocol _comMode, QObject *pa
 
 Projector::~Projector()
 {
-    socket->abort();
+    TcpSocket->abort();
     delete timer;
-    delete socket;
+    delete TcpSocket;
 }
 
 // COMMAND FUCNTIONS ---------------
 
-void Projector::selectInput(const QString input)
+// EPSON COMMANDS
+//
+// open ESC/VP.net session command
+// 0x4553432F56502E6E6574100300000000
+//
+// power OFF : PWR OFF
+// 0x505752204f46460D
+//
+// power ON : PWR ON
+// 0x505752204F4E0D
+//
+// Shutter : KEY 3E
+// 0x4B45592033450D
+//
+// ESC (Key mode) : KEY 05
+// 0x4b45592030350D
+//
+// ESC (IR mode) : KEY 3D
+// 0x4b45592033440D
+//
+// page UP : KEY 68
+// 0x4b45592036380D
+//
+// page Down : KEY 69
+// 0x4b45592036390D
+//
+// Pattern (Key mode) : KEY 1A
+// 0x4b45592031410D
+//
+// Pattern (IR mode) : KEY 4B
+// 0x4b45592034420D
+//
+// A/V Mute ON : MUTE ON
+// 0x4d555445204f4e0D
+//
+// A/V Mute OFF : MUTE OFF
+// 0x4d555445204f46464D
+//
+// ENTER : KEY 16
+// 0x4b45592031360D
+
+
+void Projector::patternOn()
 {
-    sendCommand(pjInput[input]);
+    //pattern on command : "KEY 4B"
+    QString command = "4b45592034420D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
+}
+
+void Projector::patternOff()
+{
+    //pattern off command : "ESC"
+    QString command = "4b45592030350D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
 }
 
 void Projector::shutterOn()
 {
-    sendCommand("%1AVMT 31\r");
+    //Shutter ON command : "MUTE ON"
+    QString command = "4d555445204f4e0D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
 }
 
 void Projector::shutterOff()
 {
-    sendCommand("%1AVMT 30\r");
+    //Shutter OFF command : "MUTE OFF"
+    QString command = "4d555445204f46464D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
 }
 
 void Projector::powerOn()
 {
-    sendCommand("%1POWR 1\r");
+    //Power ON command : "PWR ON"
+    QString command = "505752204F4E0D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
 }
 
 void Projector::powerOff()
 {
-    sendCommand("%1POWR 0\r");
+    //Power OFF command : "PWR OFF"
+    QString command = "505752204f46460D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
 }
+
+void Projector::pgUpKey()
+{
+    //Page Up command : KEY 68
+    QString command = "4b45592036380D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
+}
+
+void Projector::pgDownKey()
+{
+    //Page Down command : KEY 69
+    QString command = "4b45592036390D";
+
+    //convert string command to hexadecimal
+    QByteArray cmd = QByteArray::fromHex(command.toUtf8());
+
+    sendCommand(cmd);
+}
+
 
 // Socket Method --------------------------------
 
 QAbstractSocket::SocketState Projector::socketState()
 {
-    return socket->state();
+    return TcpSocket->state();
 }
 
 bool Projector::sendCommand(QByteArray command)
 {
-    if (socket->state() != QAbstractSocket::ConnectedState)
+    if (TcpSocket->state() != QAbstractSocket::ConnectedState)
     {
         qWarning() << "Can't send command : not connected !";
     }
     else
     {
-        if(socket->write(command))
+        if(TcpSocket->write(command))
         {
             timer->start();
             return true;
@@ -87,103 +184,38 @@ bool Projector::sendCommand(QByteArray command)
     return false;
 }
 
-QByteArray Projector::sendQuery(QByteArray query)
+bool Projector::connection(QString &ip, quint16 port)
 {
-    if (socket->state() != QAbstractSocket::ConnectedState)
-    {
-        qWarning() << "Can't send command : not connected !";
-        return QByteArray("ERR_NOT_CONNECTED");
-    }
-    else
-    {
-        socket->write(query);
-        QByteArray resp;
-        if(socket->waitForBytesWritten(2000)) {
-            while(socket->bytesAvailable() > 0 || socket->waitForReadyRead(1000))
-            {
-                resp.append(socket->readLine());
-            }
-            timer->start();
-            return resp;
-        }
-        qWarning() << "Waiting for data to read timed out. Nothing to read !";
-        return QByteArray("ERR_RESPONSE_TIMEOUT");
-    }
-    return QByteArray("ERR_SEND_QUERY");
-}
+    this->TcpSocket->connectToHost(ip, port);
 
-QByteArray Projector::parsePjlinkResponse(QByteArray msg)
-{
-    qint16 pos = msg.indexOf("=") + 1;
-    return msg.remove(0, pos);
-}
-
-bool Projector::connection(QString &ip, qint16 port)
-{
-    this->socket->connectToHost(ip, port);
-
-    if(!socket->waitForConnected(500))
+    if(!TcpSocket->waitForConnected(100))
     {
         qWarning() << "Can't connect to : " << ip << " on port " << port;
         return false;
     }
-    qDebug() << "Connected to : " << ip << " on port " << port;
+
+    //open ESC/VP.net session
+    QString sessionCommand = "4553432F56502E6E6574100300000000";
+    QByteArray cmd = QByteArray::fromHex(sessionCommand.toUtf8());
+    sendCommand(cmd);
+
     return true;
 }
 
 void Projector::closeConnection()
 {
-    socket->abort();
-}
-
-// QUERY METHODS -----------------------
-
-QByteArray Projector::getInput()
-{
-    if(sendCommand("%1INPT ?\r"))
-    {
-        if(socket->waitForReadyRead(1000))
-        {
-            return parsePjlinkResponse(socket->readAll());
-        }
-    }
-    return QByteArray("ERR_GET_INPUT");
-}
-
-bool Projector::getShutterStatus()
-{
-    if(sendCommand("%1AVMT ?\r"))
-    {
-        if(socket->waitForReadyRead(1000))
-        {
-            return parsePjlinkResponse(socket->readAll()).toInt();
-        }
-    }
-    return false;
-}
-
-bool Projector::getPowerStatus()
-{
-    if(sendCommand("%1POWR ?\r"))
-    {
-        if(socket->waitForReadyRead(1000))
-        {
-            return parsePjlinkResponse(socket->readAll()).toInt();
-        }
-    }
-    return false;
+    TcpSocket->abort();
 }
 
 // SLOTS -------------------------------
 
 void Projector::connected()
 {
-    qDebug() << "Connected to : " << ipAddr << " on port " << portNum;
-    if(socket->waitForReadyRead((1000)))
+    if(TcpSocket->waitForReadyRead((100)))
     {
-        while(socket->bytesAvailable() > 0) //purge socket buffer
+        while(TcpSocket->bytesAvailable() > 0) //purge socket buffer
         {
-            socket->readLine();
+            TcpSocket->readLine();
         }
     }
     timer->start();
@@ -192,14 +224,23 @@ void Projector::connected()
 
 void Projector::disconnected()
 {
-    qDebug() << "disconnected() signal emitted !";
     timer->stop();
     emit sigSocketDisconnected();
 }
 
 void Projector::keepAlive()
 {
-    qDebug() << "keepAlive() signal emitted !" << endl;
-    sendCommand("\r");
-    timer->start();
+    QString command = QString("00"); // send NULL as epson need this charater as keepalive
+    QByteArray cmd;
+    cmd.append(QByteArray::fromHex(command.toUtf8()));
+    sendCommand(cmd);
+
+    bool connected = (TcpSocket->state() == QAbstractSocket::ConnectedState);
+    if(!connected) {
+        emit sigSocketDisconnected();
+        timer->stop();
+    }
+    else {
+        timer->start();
+    }
 }

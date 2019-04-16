@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    w.setWindowTitle("gsController (v0.9.1)");
+    w.setWindowTitle("epsonControl (v1.2)");
 
     w.show();
 

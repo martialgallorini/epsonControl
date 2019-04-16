@@ -19,9 +19,6 @@ public:
 
     qint16 pid; // projector ID
 
-    QStringListModel *srcModel; // model of sources list
-
-    void setVideoInputs(QStringList inList);
     void selectProjector(bool checked);
     bool isSelected();
     QAbstractSocket::SocketState socketState();
@@ -29,20 +26,17 @@ public:
     void closeConnection();
     void shutterOn();
     void shutterOff();
+    void patternOn();
+    void patternOff();
+    void patternNext();
+    void patternPrev();
     void powerOn();
     void powerOff();
-    void selectInput(const QString input);
 
     QString getIp();
     quint16 getPort();
 
-    // !!!!!!!!!! NEW !!!!!!!!!!
-    bool getPowerStatus();
-    bool getShutterStatus();
-    QByteArray getActiveInput();
-
     void updateStatus();
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
 
     void setProjectorName(QString pjName);
     void setProjectorModel(QString pjModel);
@@ -60,6 +54,10 @@ private slots:
     void on_unmute_clicked();
     void on_on_clicked();
     void on_off_clicked();
+    void on_patternOn_clicked();
+    void on_patternOff_clicked();
+    void on_patternNext_clicked();
+    void on_patternPrev_clicked();
 
 private:
     Ui::pjWidget *ui;
